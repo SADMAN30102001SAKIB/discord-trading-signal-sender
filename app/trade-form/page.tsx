@@ -86,10 +86,6 @@ const TradeForm = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setFormData({
-            ...formData,
-            entryPrice: data.data.amount,
-          });
           const updatedFormData = {
             ...formData,
             entryPrice: data.data.amount,
