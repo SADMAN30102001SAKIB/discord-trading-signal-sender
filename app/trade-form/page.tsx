@@ -79,16 +79,33 @@ const TradeForm = () => {
       return;
     }
 
+    let password = localStorage.getItem("password");
+
+    if (!password) {
+      password = prompt("Enter your password:");
+      if (!password) {
+        setModalMessage("Password is required.");
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const response = await fetch("/api/send-signal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ channel, signalType, ...formData }),
+        body: JSON.stringify({ channel, signalType, ...formData, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setModalMessage(data.msg);
+
+        if (data.msg !== "incorrect password") {
+          localStorage.setItem("password", password);
+        } else {
+          localStorage.removeItem("password");
+        }
       } else {
         const error = await response.json();
         setModalMessage(error.message || "Failed to send signal!");

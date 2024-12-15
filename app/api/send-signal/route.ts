@@ -19,8 +19,13 @@ export async function POST(request: Request) {
       slPrice,
       entry1stPrice,
       loss,
+      password,
     } = body;
     let { entryPrice } = body;
+
+    if (password !== "TapSs@14023010.com") {
+      return NextResponse.json({ msg: "incorrect password" });
+    }
 
     if (
       !entryPrice &&
