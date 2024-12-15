@@ -9,49 +9,74 @@ import {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { channel, signalType, direction, margin, takeProfit, price } = body;
+    const {
+      channel,
+      signalType,
+      coin,
+      direction,
+      margin,
+      takeProfit,
+      entryPrice,
+      slPrice,
+      entry1stPrice,
+    } = body;
+
+    console.log("Received signal:", body);
 
     let message = "";
 
-    // Format the message based on channel and signal type
     if (channel === "alerts") {
-      if (signalType === "trade entry" || signalType === "reentry") {
-        message = formatAlertMessage(direction, margin);
+      if (signalType === "trade entry") {
+        message = formatAlertMessage(coin, direction, margin, entryPrice);
+      }
+      if (signalType === "reentry") {
+        message = formatAlertMessage(
+          coin,
+          direction,
+          margin,
+          entryPrice,
+          "ReEntry ",
+        );
       } else if (signalType === "exit") {
-        message = "Exit signal sent.";
+        message = "We Might Exit Now.";
       } else if (signalType === "opposite direction entry") {
-        message = formatAlertMessage(direction, margin, price, "ReEntry");
+        if (margin) {
+          message =
+            "Potential oposite direction entry with " + margin + "% margin";
+        } else {
+          message = "Potential oposite direction entry";
+        }
       }
     } else if (channel === "signals") {
       if (signalType === "trade entry") {
         message = formatSignalMessage(
+          coin,
           direction,
-          price,
-          takeProfit,
+          entryPrice,
+          takeProfit ? takeProfit : 1,
           margin,
-          1, // Example ROI multiplier
         );
-      } else if (signalType === "stop loss") {
-        message = formatStopLossMessage(direction, price);
-      } else if (signalType === "trailing stop loss") {
-        message = formatStopLossMessage(direction, price, "Trailing ");
       } else if (signalType === "reentry") {
         message = formatSignalMessage(
+          coin,
           direction,
-          price,
-          null,
+          entryPrice,
+          takeProfit ? takeProfit : 1,
           margin,
-          1,
           "ReEntry",
+          entry1stPrice,
         );
+      } else if (signalType === "stop loss") {
+        message = formatStopLossMessage(direction, slPrice);
+      } else if (signalType === "trailing stop loss") {
+        message = formatStopLossMessage(direction, slPrice, "Trailing ");
       } else if (signalType === "exit") {
-        message = "Exit signal sent.";
+        message = "Exit Now.";
       }
     } else {
       throw new Error("Invalid channel or signal type.");
     }
 
-    // Send message to Discord
     await sendToDiscord(channel, message);
 
     return NextResponse.json({ success: true });
