@@ -16,12 +16,50 @@ export async function POST(request: Request) {
       direction,
       margin,
       takeProfit,
-      entryPrice,
       slPrice,
       entry1stPrice,
+      loss,
     } = body;
+    let { entryPrice } = body;
 
-    console.log("Received signal:", body);
+    if (
+      !entryPrice &&
+      (channel === "signals" || channel === "test") &&
+      (signalType === "trade entry" || signalType === "reentry")
+    ) {
+      const url = `https://api.coinbase.com/v2/prices/${coin}-USD/spot`;
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.data && data.data.amount) {
+            entryPrice = data.data.amount;
+          } else {
+            return NextResponse.json({ msg: "Error: Invalid API response." });
+          }
+        } else {
+          return NextResponse.json({
+            msg: `Error fetching price, status code: ${response.status}`,
+          });
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return NextResponse.json({
+            msg: "API Request timed out.",
+          });
+        } else {
+          return NextResponse.json({
+            msg: `Error fetching price: ${error}`,
+          });
+        }
+      }
+    }
 
     let message = "";
 
@@ -38,16 +76,17 @@ export async function POST(request: Request) {
           "ReEntry ",
         );
       } else if (signalType === "exit") {
-        message = "We Might Exit Now.";
+        message =
+          "We Might Exit Now! Be Ready for the Official Signal. <@&1293979151266742354>";
       } else if (signalType === "opposite direction entry") {
         if (margin) {
-          message =
-            "Potential oposite direction entry with " + margin + "% margin";
+          message = `We Might Exit Now & Take a New Trade in the Opposite Direction With ${margin}% Margin of Our Total Capital! Be Ready for the Official Signals. <@&1293979151266742354>`;
         } else {
-          message = "Potential oposite direction entry";
+          message =
+            "We Might Exit Now & Take a New Trade in the Opposite Direction! Be Ready for the Official Signal. <@&1293979151266742354>";
         }
       }
-    } else if (channel === "signals") {
+    } else if (channel === "signals" || channel === "test") {
       if (signalType === "trade entry") {
         message = formatSignalMessage(
           coin,
@@ -71,20 +110,22 @@ export async function POST(request: Request) {
       } else if (signalType === "trailing stop loss") {
         message = formatStopLossMessage(direction, slPrice, "Trailing ");
       } else if (signalType === "exit") {
-        message = "Exit Now.";
+        if (loss) {
+          message = `Exit Now. We Took a Loss on This Trade, Reducing Our Total Capital by ${loss}% <@&1293979151266742354>`;
+        } else {
+          message = "Exit Now. <@&1293979151266742354>";
+        }
       }
     } else {
-      throw new Error("Invalid channel or signal type.");
+      return NextResponse.json({ msg: "Invalid channel or signal type." });
     }
 
-    await sendToDiscord(channel, message);
+    const msg = await sendToDiscord(channel, message);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ msg: msg });
   } catch (error) {
-    console.error("Error processing request:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to process request." },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      msg: "Failed to process request: " + error,
+    });
   }
 }

@@ -9,104 +9,94 @@ const TradeForm = () => {
   const [formData, setFormData] = useState({
     coin: "ETH",
     direction: "LONG",
-    margin: "",
+    margin: 1,
     takeProfit: 1,
     entryPrice: "",
     slPrice: "",
     entry1stPrice: "",
+    loss: "",
   });
   const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name == "coin" && e.target.value == "BTC") {
+      setFormData({
+        ...formData,
+        takeProfit: 0.5,
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name == "coin" && e.target.value == "ETH") {
+      setFormData({
+        ...formData,
+        takeProfit: 1,
+        [e.target.name]: e.target.value,
+      });
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
   };
 
   const handleChannelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setChannel(e.target.value);
     setSignalType("");
     setFormData({
-      coin: "ETH",
-      direction: "LONG",
-      margin: "",
-      takeProfit: 1,
+      coin: formData.coin,
+      direction: formData.direction,
+      margin: 1,
+      takeProfit: formData.takeProfit,
       entryPrice: "",
       slPrice: "",
       entry1stPrice: "",
+      loss: "",
     });
   };
 
   const handleSignalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSignalType(e.target.value);
-  };
-
-  const sendSignal = async (data: {
-    coin: string;
-    direction: string;
-    margin: string;
-    takeProfit: number;
-    entryPrice: string;
-    slPrice: string;
-    entry1stPrice: string;
-  }) => {
-    const response = await fetch("/api/send-signal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ channel, signalType, ...data }),
-    });
-
-    if (response.ok) {
-      setModalMessage("Signal sent successfully!");
+    if (e.target.value == "opposite direction entry") {
+      setFormData({
+        ...formData,
+        margin: 0,
+      });
     } else {
-      setModalMessage("Failed to send signal.");
+      setFormData({
+        ...formData,
+        margin: formData.margin == 0 ? 1 : formData.margin,
+      });
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (
-      !formData.entryPrice &&
-      channel === "signals" &&
-      (signalType === "trade entry" || signalType === "reentry")
-    ) {
-      const { coin } = formData;
-      const url =
-        coin === "ETH"
-          ? "https://api.coinbase.com/v2/prices/ETH-USD/spot"
-          : "https://api.coinbase.com/v2/prices/BTC-USD/spot";
+    if (formData.margin <= 0 || formData.takeProfit <= 0) {
+      setModalMessage("Please provide positive values.");
+      setLoading(false);
+      return;
+    }
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+    try {
+      const response = await fetch("/api/send-signal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channel, signalType, ...formData }),
+      });
 
-      try {
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeout);
-
-        if (response.ok) {
-          const data = await response.json();
-          const updatedFormData = {
-            ...formData,
-            entryPrice: data.data.amount,
-          };
-          await sendSignal(updatedFormData);
-        } else {
-          setModalMessage(
-            `Error fetching price, status code: ${response.status}`,
-          );
-          return;
-        }
-      } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-          setModalMessage("API Request timed out.");
-        } else {
-          setModalMessage(`Error fetching price: ${error}`);
-        }
-        return;
+      if (response.ok) {
+        const data = await response.json();
+        setModalMessage(data.msg);
+      } else {
+        const error = await response.json();
+        setModalMessage(error.message || "Failed to send signal!");
       }
-    } else {
-      await sendSignal(formData);
+    } catch (err) {
+      setModalMessage("An unexpected error occurred: " + err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -125,15 +115,18 @@ const TradeForm = () => {
                 <option value="LONG">LONG</option>
                 <option value="SHORT">SHORT</option>
               </select>
-              <input
-                type="number"
-                name="margin"
-                placeholder="Margin Percentage"
-                value={formData.margin}
-                onChange={handleInputChange}
-                className="input"
-                required
-              />
+              <div className="flex items-center space-x-2">
+                <label className="text-gray-600 font-medium">Margin(%)</label>
+                <input
+                  type="number"
+                  name="margin"
+                  placeholder="Margin Percentage"
+                  value={formData.margin}
+                  onChange={handleInputChange}
+                  className="input"
+                  required
+                />
+              </div>
               <input
                 type="number"
                 name="entryPrice"
@@ -148,17 +141,20 @@ const TradeForm = () => {
           return null;
         case "opposite direction entry":
           return (
-            <input
-              type="number"
-              name="margin"
-              placeholder="Margin Percentage (optional)"
-              value={formData.margin}
-              onChange={handleInputChange}
-              className="input"
-            />
+            <div className="flex items-center space-x-2">
+              <label className="text-gray-600 font-medium">Margin(%)</label>
+              <input
+                type="number"
+                name="margin"
+                placeholder="Margin Percentage (optional)"
+                value={formData.margin ? formData.margin : ""}
+                onChange={handleInputChange}
+                className="input"
+              />
+            </div>
           );
       }
-    } else if (channel === "signals") {
+    } else if (channel === "signals" || channel === "test") {
       switch (signalType) {
         case "trade entry":
         case "reentry":
@@ -172,15 +168,18 @@ const TradeForm = () => {
                 <option value="LONG">LONG</option>
                 <option value="SHORT">SHORT</option>
               </select>
-              <input
-                type="number"
-                name="margin"
-                placeholder="Margin Percentage"
-                value={formData.margin}
-                onChange={handleInputChange}
-                className="input"
-                required
-              />
+              <div className="flex items-center space-x-2">
+                <label className="text-gray-600 font-medium">Margin(%)</label>
+                <input
+                  type="number"
+                  name="margin"
+                  placeholder="Margin Percentage"
+                  value={formData.margin}
+                  onChange={handleInputChange}
+                  className="input"
+                  required
+                />
+              </div>
               <div className="flex items-center space-x-2">
                 <label className="text-gray-600 font-medium">TP(%)</label>
                 <input
@@ -242,9 +241,9 @@ const TradeForm = () => {
           return (
             <input
               type="number"
-              name="margin"
+              name="loss"
               placeholder="Loss Percentage (optional)"
-              value={formData.margin}
+              value={formData.loss}
               onChange={handleInputChange}
               className="input"
             />
@@ -286,6 +285,7 @@ const TradeForm = () => {
               <option value="">Select Channel</option>
               <option value="alerts">Alerts Channel</option>
               <option value="signals">Signals Channel</option>
+              <option value="test">Test Channel</option>
             </select>
           </div>
 
@@ -309,7 +309,7 @@ const TradeForm = () => {
                     </option>
                   </>
                 )}
-                {channel === "signals" && (
+                {(channel === "signals" || channel === "test") && (
                   <>
                     <option value="trade entry">Trade Entry</option>
                     <option value="reentry">Reentry</option>
@@ -329,8 +329,13 @@ const TradeForm = () => {
           {signalType && (
             <button
               type="submit"
-              className="w-full py-2 bg-blue-500 text-white font-medium text-center rounded hover:bg-blue-600">
-              Send Signal
+              className={`w-full py-2 ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              } text-white font-medium text-center rounded`}
+              disabled={loading}>
+              {loading ? "Sending..." : "Send Signal"}
             </button>
           )}
         </form>

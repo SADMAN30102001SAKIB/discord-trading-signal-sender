@@ -5,7 +5,8 @@ const BOT_TOKEN =
 
 const DISCORD_WEBHOOKS = {
   alerts: "https://discord.com/api/v10/channels/1301207032690380830/messages",
-  signals: "https://discord.com/api/v10/channels/1314510111133270047/messages",
+  signals: "https://discord.com/api/v10/channels/1299863972010393752/messages",
+  test: "https://discord.com/api/v10/channels/1314510111133270047/messages",
 };
 
 export const sendToDiscord = async (
@@ -15,21 +16,27 @@ export const sendToDiscord = async (
   const webhookUrl = DISCORD_WEBHOOKS[channel];
 
   if (!webhookUrl) {
-    throw new Error(`Invalid channel: ${channel}`);
+    return `Invalid channel: ${channel}`;
   }
 
-  const response = await fetch(webhookUrl, {
-    method: "POST",
-    headers: {
-      Authorization: `Bot ${BOT_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ content: message }),
-  });
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bot ${BOT_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: message }),
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to send message: ${error}`);
+    if (response.ok) {
+      return "Signal sent successfully.";
+    } else {
+      const error = await response.text();
+      return `Failed to send message: ${error}`;
+    }
+  } catch (error) {
+    return `Error sending message: ${error}`;
   }
 };
 
@@ -85,22 +92,38 @@ export const formatSignalMessage = (
   reEntry: string = "",
   entry1stPrice: number = 0,
 ) => {
+  const formatNumber = (value: unknown) => {
+    const parsedValue = typeof value === "string" ? parseFloat(value) : value;
+
+    if (typeof parsedValue !== "number" || isNaN(parsedValue)) {
+      throw new TypeError(`Invalid number passed to formatNumber: ${value}`);
+    }
+
+    return parseFloat(parsedValue.toFixed(2));
+  };
+
   if (reEntry === "ReEntry") {
     return `
-**${coin == "ETH" ? "🔷  Ethereum" : "🪙  Bitcoin"}**
+**${coin === "ETH" ? "🔷  Ethereum" : "🪙  Bitcoin"}**
 
 📊 **Direction**: ${action}
-💥 **Leverage**: Cross ${coin == "ETH" ? "50x" : "100x"}
+💥 **Leverage**: Cross ${coin === "ETH" ? "50x" : "100x"}
 
 ⚠️ **Note**: *This is a 2nd entry!*
-🔸 **2nd Entry Price**: $${entryPrice}
+🔸 **2nd Entry Price**: $${formatNumber(entryPrice)}
 🔹 **Take Profit (${
-      coin == "ETH" ? takeProfit * 50 : takeProfit * 100
-    }% ROI)**: $${
-      action == "LONG"
-        ? ((entryPrice + entry1stPrice) / 2) * (1 + takeProfit / 100)
-        : ((entryPrice + entry1stPrice) / 2) * (1 - takeProfit / 100)
-    }
+      coin === "ETH" ? takeProfit * 50 : takeProfit * 100
+    }% ROI)**: $${formatNumber(
+      action === "LONG"
+        ? ((parseFloat(entryPrice.toString()) +
+            parseFloat(entry1stPrice.toString())) /
+            2) *
+            (1 + takeProfit / 100)
+        : ((parseFloat(entryPrice.toString()) +
+            parseFloat(entry1stPrice.toString())) /
+            2) *
+            (1 - takeProfit / 100),
+    )}
  (*These prices are taken from Coinbase ${coin}-USD*)
 
 💼 **USE ${marginPercent}% MARGIN** of your total capital ✅
@@ -113,19 +136,19 @@ export const formatSignalMessage = (
   }
 
   return `
-**${coin == "ETH" ? "🔷  Ethereum" : "🪙  Bitcoin"}**
+**${coin === "ETH" ? "🔷  Ethereum" : "🪙  Bitcoin"}**
 
 📊 **Direction**: ${action}
-💥 **Leverage**: Cross ${coin == "ETH" ? "50x" : "100x"}
+💥 **Leverage**: Cross ${coin === "ETH" ? "50x" : "100x"}
 
-🔸 **Entry Price**: $${entryPrice}
+🔸 **Entry Price**: $${formatNumber(entryPrice)}
 🔹 **Take Profit (${
-    coin == "ETH" ? takeProfit * 50 : takeProfit * 100
-  }% ROI)**: $${
-    action == "LONG"
+    coin === "ETH" ? takeProfit * 50 : takeProfit * 100
+  }% ROI)**: $${formatNumber(
+    action === "LONG"
       ? entryPrice * (1 + takeProfit / 100)
-      : entryPrice * (1 - takeProfit / 100)
-  }
+      : entryPrice * (1 - takeProfit / 100),
+  )}
  (*These prices are taken from Coinbase ${coin}-USD*)
 
 💼 **USE ${marginPercent}% MARGIN** of your total capital ✅
