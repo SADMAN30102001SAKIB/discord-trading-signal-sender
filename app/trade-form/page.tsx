@@ -123,17 +123,17 @@ const TradeForm = () => {
                     key={dir}
                     type="button"
                     onClick={() => handleDirectionChange(dir)}
-                    className={`px-4 py-2 rounded ${
+                    className={`px-4 py-2 rounded-lg ${
                       formData.direction === dir
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-800"
+                        ? "bg-[#5865f2] text-white"
+                        : "bg-[#4f545c] text-[#dcddde] hover:bg-[#4f545c]/80"
                     }`}>
                     {dir}
                   </button>
                 ))}
               </div>
               <div className="flex items-center space-x-2 mt-4">
-                <label className="text-gray-600 font-medium">Margin(%)</label>
+                <label className="text-[#dcddde] font-medium">Margin(%)</label>
                 <input
                   type="number"
                   name="margin"
@@ -159,7 +159,7 @@ const TradeForm = () => {
         case "opposite direction entry":
           return (
             <div className="flex items-center space-x-2 mt-4">
-              <label className="text-gray-600 font-medium">Margin(%)</label>
+              <label className="text-[#dcddde] font-medium">Margin(%)</label>
               <input
                 type="number"
                 name="margin"
@@ -183,17 +183,17 @@ const TradeForm = () => {
                     key={dir}
                     type="button"
                     onClick={() => handleDirectionChange(dir)}
-                    className={`px-4 py-2 rounded ${
+                    className={`px-4 py-2 rounded-lg ${
                       formData.direction === dir
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-800"
+                        ? "bg-[#5865f2] text-white"
+                        : "bg-[#4f545c] text-[#dcddde] hover:bg-[#4f545c]/80"
                     }`}>
                     {dir}
                   </button>
                 ))}
               </div>
               <div className="flex items-center space-x-2 mt-4">
-                <label className="text-gray-600 font-medium">Margin(%)</label>
+                <label className="text-[#dcddde] font-medium">Margin(%)</label>
                 <input
                   type="number"
                   name="margin"
@@ -205,7 +205,7 @@ const TradeForm = () => {
                 />
               </div>
               <div className="flex items-center space-x-2 mt-4">
-                <label className="text-gray-600 font-medium">TP(%)</label>
+                <label className="text-[#dcddde] font-medium">TP(%)</label>
                 <input
                   type="number"
                   name="takeProfit"
@@ -246,7 +246,7 @@ const TradeForm = () => {
                     key={dir}
                     type="button"
                     onClick={() => handleDirectionChange(dir)}
-                    className={`px-4 py-2 rounded ${
+                    className={`px-4 py-2 rounded-lg ${
                       formData.direction === dir
                         ? "bg-blue-500 text-white"
                         : "bg-gray-200 text-gray-800"
@@ -285,14 +285,14 @@ const TradeForm = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+    <div className="bg-[#36393f] min-h-screen flex justify-center items-center">
+      <div className="bg-[#2f3136] p-6 rounded-lg shadow-md w-full max-w-sm border border-[#202225]">
+        <h1 className="text-2xl font-bold text-center text-white mb-6">
           Send Trading Signal
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-600 font-medium mb-1">
+            <label className="block text-[#b9bbbe] font-medium mb-1">
               Select Coin
             </label>
             <div className="flex space-x-4">
@@ -301,10 +301,10 @@ const TradeForm = () => {
                   key={coin}
                   type="button"
                   onClick={() => handleCoinChange(coin)}
-                  className={`px-4                   py-2 rounded ${
+                  className={`px-4 py-2 rounded-lg ${
                     formData.coin === coin
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-800"
+                      ? "bg-[#5865f2] text-white"
+                      : "bg-[#4f545c] text-[#dcddde] hover:bg-[#4f545c]/80"
                   }`}>
                   {coin}
                 </button>
@@ -312,7 +312,7 @@ const TradeForm = () => {
             </div>
           </div>
           <div>
-            <label className="block text-gray-600 font-medium mb-1">
+            <label className="block text-[#b9bbbe] font-medium mb-1">
               Select Channel
             </label>
             <div className="flex space-x-4">
@@ -321,10 +321,10 @@ const TradeForm = () => {
                   key={ch}
                   type="button"
                   onClick={() => handleChannelChange(ch)}
-                  className={`px-4 py-2 rounded ${
+                  className={`px-4 py-2 rounded-lg ${
                     channel === ch
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-800"
+                      ? "bg-[#5865f2] text-white"
+                      : "bg-[#4f545c] text-[#dcddde] hover:bg-[#4f545c]/80"
                   }`}>
                   {ch}
                 </button>
@@ -332,13 +332,13 @@ const TradeForm = () => {
             </div>
           </div>
           <div>
-            <label className="block text-gray-600 font-medium mb-1">
+            <label className="block text-[#b9bbbe] font-medium mb-1">
               Select Signal Type
             </label>
             <select
               value={signalType}
               onChange={handleSignalChange}
-              className="select">
+              className="w-full bg-[#2f3136] text-[#dcddde] border-2 border-[#ccc] rounded-lg p-2 focus:outline-none">
               {channel === "Alerts" && (
                 <>
                   <option value="trade entry">Trade Entry</option>
@@ -363,8 +363,10 @@ const TradeForm = () => {
           {renderFormFields()}
           <button
             type="submit"
-            className={`w-full mt-6 py-2 px-4 rounded text-white font-medium ${
-              loading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+            className={`w-full mt-6 py-2 px-4 rounded-lg text-white font-medium ${
+              loading
+                ? "bg-[#4f545c] cursor-not-allowed"
+                : "bg-[#5865f2] hover:bg-[#4752c4]"
             }`}
             disabled={loading}>
             {loading ? "Submitting..." : "Send Signal"}

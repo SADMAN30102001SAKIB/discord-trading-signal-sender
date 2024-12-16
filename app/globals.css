@@ -2,40 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  background-color: white;
-  color: black;
-  font-size: 1rem;
-}
-
+.input,
 .select {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  background-color: white;
-  color: black;
+  border: 2px solid #ccc;
+  border-radius: 0.5rem;
+  color: #dcddde;
+  background-color: #2f3136;
   font-size: 1rem;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+}
+
+.input::placeholder,
+.select::placeholder {
+  color: #b9bbbe;
 }
