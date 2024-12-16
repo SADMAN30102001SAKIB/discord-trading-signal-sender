@@ -140,7 +140,7 @@ const TradeForm = () => {
                   placeholder="Margin Percentage"
                   value={formData.margin}
                   onChange={handleInputChange}
-                  className="input"
+                  className="input no-spinner"
                   required
                 />
               </div>
@@ -150,7 +150,7 @@ const TradeForm = () => {
                 placeholder="Entry Price (optional)"
                 value={formData.entryPrice}
                 onChange={handleInputChange}
-                className="input mt-4"
+                className="input mt-4 no-spinner"
               />
             </>
           );
@@ -166,7 +166,7 @@ const TradeForm = () => {
                 placeholder="Margin Percentage (optional)"
                 value={formData.margin ? formData.margin : ""}
                 onChange={handleInputChange}
-                className="input"
+                className="input no-spinner"
               />
             </div>
           );
@@ -200,7 +200,7 @@ const TradeForm = () => {
                   placeholder="Margin Percentage"
                   value={formData.margin}
                   onChange={handleInputChange}
-                  className="input"
+                  className="input no-spinner"
                   required
                 />
               </div>
@@ -212,7 +212,7 @@ const TradeForm = () => {
                   placeholder="Take Profit Percentage (optional)"
                   value={formData.takeProfit}
                   onChange={handleInputChange}
-                  className="input"
+                  className="input no-spinner"
                 />
               </div>
               {signalType === "reentry" && (
@@ -222,7 +222,7 @@ const TradeForm = () => {
                   placeholder="1st Entry Price"
                   value={formData.entry1stPrice}
                   onChange={handleInputChange}
-                  className="input mt-4"
+                  className="input mt-4 no-spinner"
                   required
                 />
               )}
@@ -232,7 +232,7 @@ const TradeForm = () => {
                 placeholder="Entry Price (optional)"
                 value={formData.entryPrice}
                 onChange={handleInputChange}
-                className="input mt-4"
+                className="input mt-4 no-spinner"
               />
             </>
           );
@@ -263,7 +263,7 @@ const TradeForm = () => {
                 }
                 value={formData.slPrice}
                 onChange={handleInputChange}
-                className="input mt-4"
+                className="input mt-4 no-spinner"
                 required
               />
             </>
@@ -276,7 +276,7 @@ const TradeForm = () => {
               placeholder="Loss Percentage (optional)"
               value={formData.loss}
               onChange={handleInputChange}
-              className="input"
+              className="input no-spinner"
             />
           );
       }
