@@ -4,8 +4,8 @@ import { useState } from "react";
 import Modal from "../components/Modal";
 
 const TradeForm = () => {
-  const [channel, setChannel] = useState("");
-  const [signalType, setSignalType] = useState("");
+  const [channel, setChannel] = useState("Alerts");
+  const [signalType, setSignalType] = useState("trade entry");
   const [formData, setFormData] = useState({
     coin: "ETH",
     direction: "LONG",
@@ -19,29 +19,21 @@ const TradeForm = () => {
   const [modalMessage, setModalMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    if (e.target.name == "coin" && e.target.value == "BTC") {
-      setFormData({
-        ...formData,
-        takeProfit: 0.5,
-        [e.target.name]: e.target.value,
-      });
-    } else if (e.target.name == "coin" && e.target.value == "ETH") {
-      setFormData({
-        ...formData,
-        takeProfit: 1,
-        [e.target.name]: e.target.value,
-      });
-    } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleChannelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setChannel(e.target.value);
-    setSignalType("");
+  const handleCoinChange = (coin: string) => {
+    setFormData({
+      ...formData,
+      coin,
+      takeProfit: coin === "BTC" ? 0.5 : 1,
+    });
+  };
+
+  const handleChannelChange = (newChannel: string) => {
+    setChannel(newChannel);
+    setSignalType("trade entry");
     setFormData({
       coin: formData.coin,
       direction: formData.direction,
@@ -55,25 +47,26 @@ const TradeForm = () => {
   };
 
   const handleSignalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSignalType(e.target.value);
-    if (e.target.value == "opposite direction entry") {
-      setFormData({
-        ...formData,
-        margin: 0,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        margin: formData.margin == 0 ? 1 : formData.margin,
-      });
-    }
+    const newSignalType = e.target.value;
+    setSignalType(newSignalType);
+    setFormData({
+      ...formData,
+      margin: newSignalType === "opposite direction entry" ? 0 : 1,
+    });
+  };
+
+  const handleDirectionChange = (newDirection: string) => {
+    setFormData({ ...formData, direction: newDirection });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    if (formData.margin <= 0 || formData.takeProfit <= 0) {
+    if (
+      signalType !== "opposite direction entry" &&
+      (formData.margin <= 0 || formData.takeProfit <= 0)
+    ) {
       setModalMessage("Please provide positive values.");
       setLoading(false);
       return;
@@ -118,21 +111,28 @@ const TradeForm = () => {
   };
 
   const renderFormFields = () => {
-    if (channel === "alerts") {
+    if (channel === "Alerts") {
       switch (signalType) {
         case "trade entry":
         case "reentry":
           return (
             <>
-              <select
-                name="direction"
-                value={formData.direction}
-                onChange={handleInputChange}
-                className="input">
-                <option value="LONG">LONG</option>
-                <option value="SHORT">SHORT</option>
-              </select>
-              <div className="flex items-center space-x-2">
+              <div className="flex space-x-4">
+                {["LONG", "SHORT"].map(dir => (
+                  <button
+                    key={dir}
+                    type="button"
+                    onClick={() => handleDirectionChange(dir)}
+                    className={`px-4 py-2 rounded ${
+                      formData.direction === dir
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-800"
+                    }`}>
+                    {dir}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center space-x-2 mt-4">
                 <label className="text-gray-600 font-medium">Margin(%)</label>
                 <input
                   type="number"
@@ -150,7 +150,7 @@ const TradeForm = () => {
                 placeholder="Entry Price (optional)"
                 value={formData.entryPrice}
                 onChange={handleInputChange}
-                className="input"
+                className="input mt-4"
               />
             </>
           );
@@ -158,7 +158,7 @@ const TradeForm = () => {
           return null;
         case "opposite direction entry":
           return (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mt-4">
               <label className="text-gray-600 font-medium">Margin(%)</label>
               <input
                 type="number"
@@ -171,21 +171,28 @@ const TradeForm = () => {
             </div>
           );
       }
-    } else if (channel === "signals" || channel === "test") {
+    } else if (channel === "Signals" || channel === "Test") {
       switch (signalType) {
         case "trade entry":
         case "reentry":
           return (
             <>
-              <select
-                name="direction"
-                value={formData.direction}
-                onChange={handleInputChange}
-                className="input">
-                <option value="LONG">LONG</option>
-                <option value="SHORT">SHORT</option>
-              </select>
-              <div className="flex items-center space-x-2">
+              <div className="flex space-x-4">
+                {["LONG", "SHORT"].map(dir => (
+                  <button
+                    key={dir}
+                    type="button"
+                    onClick={() => handleDirectionChange(dir)}
+                    className={`px-4 py-2 rounded ${
+                      formData.direction === dir
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-800"
+                    }`}>
+                    {dir}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center space-x-2 mt-4">
                 <label className="text-gray-600 font-medium">Margin(%)</label>
                 <input
                   type="number"
@@ -197,7 +204,7 @@ const TradeForm = () => {
                   required
                 />
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 mt-4">
                 <label className="text-gray-600 font-medium">TP(%)</label>
                 <input
                   type="number"
@@ -215,7 +222,7 @@ const TradeForm = () => {
                   placeholder="1st Entry Price"
                   value={formData.entry1stPrice}
                   onChange={handleInputChange}
-                  className="input"
+                  className="input mt-4"
                   required
                 />
               )}
@@ -225,7 +232,7 @@ const TradeForm = () => {
                 placeholder="Entry Price (optional)"
                 value={formData.entryPrice}
                 onChange={handleInputChange}
-                className="input"
+                className="input mt-4"
               />
             </>
           );
@@ -233,23 +240,30 @@ const TradeForm = () => {
         case "trailing stop loss":
           return (
             <>
-              <select
-                name="direction"
-                value={formData.direction}
-                onChange={handleInputChange}
-                className="input">
-                <option value="LONG">LONG</option>
-                <option value="SHORT">SHORT</option>
-              </select>
+              <div className="flex space-x-4">
+                {["LONG", "SHORT"].map(dir => (
+                  <button
+                    key={dir}
+                    type="button"
+                    onClick={() => handleDirectionChange(dir)}
+                    className={`px-4 py-2 rounded ${
+                      formData.direction === dir
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-800"
+                    }`}>
+                    {dir}
+                  </button>
+                ))}
+              </div>
               <input
                 type="number"
                 name="slPrice"
                 placeholder={
-                  signalType == "stop loss" ? "SL Price" : "New SL Price"
+                  signalType === "stop loss" ? "SL Price" : "New SL Price"
                 }
                 value={formData.slPrice}
                 onChange={handleInputChange}
-                className="input"
+                className="input mt-4"
                 required
               />
             </>
@@ -281,86 +295,85 @@ const TradeForm = () => {
             <label className="block text-gray-600 font-medium mb-1">
               Select Coin
             </label>
-            <select
-              name="coin"
-              value={formData.coin}
-              onChange={handleInputChange}
-              className="input">
-              <option value="ETH">ETH</option>
-              <option value="BTC">BTC</option>
-            </select>
+            <div className="flex space-x-4">
+              {["ETH", "BTC"].map(coin => (
+                <button
+                  key={coin}
+                  type="button"
+                  onClick={() => handleCoinChange(coin)}
+                  className={`px-4                   py-2 rounded ${
+                    formData.coin === coin
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-800"
+                  }`}>
+                  {coin}
+                </button>
+              ))}
+            </div>
           </div>
-
           <div>
             <label className="block text-gray-600 font-medium mb-1">
               Select Channel
             </label>
+            <div className="flex space-x-4">
+              {["Alerts", "Signals", "Test"].map(ch => (
+                <button
+                  key={ch}
+                  type="button"
+                  onClick={() => handleChannelChange(ch)}
+                  className={`px-4 py-2 rounded ${
+                    channel === ch
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-800"
+                  }`}>
+                  {ch}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-gray-600 font-medium mb-1">
+              Select Signal Type
+            </label>
             <select
-              value={channel}
-              onChange={handleChannelChange}
+              value={signalType}
+              onChange={handleSignalChange}
               className="select">
-              <option value="">Select Channel</option>
-              <option value="alerts">Alerts Channel</option>
-              <option value="signals">Signals Channel</option>
-              <option value="test">Test Channel</option>
+              {channel === "Alerts" && (
+                <>
+                  <option value="trade entry">Trade Entry</option>
+                  <option value="reentry">Reentry</option>
+                  <option value="exit">Exit</option>
+                  <option value="opposite direction entry">
+                    Opposite Direction Entry
+                  </option>
+                </>
+              )}
+              {(channel === "Signals" || channel === "Test") && (
+                <>
+                  <option value="trade entry">Trade Entry</option>
+                  <option value="reentry">Reentry</option>
+                  <option value="stop loss">Stop Loss</option>
+                  <option value="trailing stop loss">Trailing Stop Loss</option>
+                  <option value="exit">Exit</option>
+                </>
+              )}
             </select>
           </div>
-
-          {channel && (
-            <div>
-              <label className="block text-gray-600 font-medium mb-1">
-                Select Signal Type
-              </label>
-              <select
-                value={signalType}
-                onChange={handleSignalChange}
-                className="select">
-                <option value="">Select Signal Type</option>
-                {channel === "alerts" && (
-                  <>
-                    <option value="trade entry">Trade Entry</option>
-                    <option value="reentry">Reentry</option>
-                    <option value="exit">Exit</option>
-                    <option value="opposite direction entry">
-                      Opposite Direction Entry
-                    </option>
-                  </>
-                )}
-                {(channel === "signals" || channel === "test") && (
-                  <>
-                    <option value="trade entry">Trade Entry</option>
-                    <option value="reentry">Reentry</option>
-                    <option value="stop loss">Stop Loss</option>
-                    <option value="trailing stop loss">
-                      Trailing Stop Loss
-                    </option>
-                    <option value="exit">Exit</option>
-                  </>
-                )}
-              </select>
-            </div>
-          )}
-
           {renderFormFields()}
-
-          {signalType && (
-            <button
-              type="submit"
-              className={`w-full py-2 ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
-              } text-white font-medium text-center rounded`}
-              disabled={loading}>
-              {loading ? "Sending..." : "Send Signal"}
-            </button>
-          )}
+          <button
+            type="submit"
+            className={`w-full mt-6 py-2 px-4 rounded text-white font-medium ${
+              loading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+            }`}
+            disabled={loading}>
+            {loading ? "Submitting..." : "Send Signal"}
+          </button>
         </form>
+        {modalMessage && (
+          <Modal message={modalMessage} onClose={() => setModalMessage(null)} />
+        )}
       </div>
-
-      {modalMessage && (
-        <Modal message={modalMessage} onClose={() => setModalMessage(null)} />
-      )}
     </div>
   );
 };

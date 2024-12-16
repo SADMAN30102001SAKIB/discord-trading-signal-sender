@@ -10,7 +10,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
-      channel,
       signalType,
       coin,
       direction,
@@ -21,7 +20,8 @@ export async function POST(request: Request) {
       loss,
       password,
     } = body;
-    let { entryPrice } = body;
+    let { channel, entryPrice } = body;
+    channel = channel.toLowerCase();
 
     if (password !== "TapSs@14023010.com") {
       return NextResponse.json({ msg: "incorrect password" });
