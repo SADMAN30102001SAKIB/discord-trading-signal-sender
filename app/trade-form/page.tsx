@@ -10,7 +10,7 @@ const TradeForm = () => {
     coin: "BTC",
     direction: "LONG",
     margin: 1,
-    takeProfit: 1,
+    takeProfit: 0.5,
     entryPrice: "",
     slPrice: "",
     entry1stPrice: "",
