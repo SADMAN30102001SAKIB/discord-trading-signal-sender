@@ -13,7 +13,7 @@ export default function Home() {
         </p>
         <Link href="/trade-form">
           <button className="px-6 py-3 text-lg font-semibold bg-blue-600 hover:bg-blue-500 rounded-lg shadow-lg transition duration-300 ease-in-out">
-            Go to Trading Signal Form
+            Go to Trading Signal Dashboard
           </button>
         </Link>
       </div>

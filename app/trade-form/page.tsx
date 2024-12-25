@@ -4,10 +4,10 @@ import { useState } from "react";
 import Modal from "../components/Modal";
 
 const TradeForm = () => {
-  const [channel, setChannel] = useState("Alerts");
+  const [channel, setChannel] = useState("Signals");
   const [signalType, setSignalType] = useState("trade entry");
   const [formData, setFormData] = useState({
-    coin: "ETH",
+    coin: "BTC",
     direction: "LONG",
     margin: 1,
     takeProfit: 1,
@@ -118,7 +118,7 @@ const TradeForm = () => {
           return (
             <>
               <div className="flex space-x-4">
-                {["LONG", "SHORT"].map(dir => (
+                {["LONG", "SHORT"].map((dir) => (
                   <button
                     key={dir}
                     type="button"
@@ -178,7 +178,7 @@ const TradeForm = () => {
           return (
             <>
               <div className="flex space-x-4">
-                {["LONG", "SHORT"].map(dir => (
+                {["LONG", "SHORT"].map((dir) => (
                   <button
                     key={dir}
                     type="button"
@@ -241,7 +241,7 @@ const TradeForm = () => {
           return (
             <>
               <div className="flex space-x-4">
-                {["LONG", "SHORT"].map(dir => (
+                {["LONG", "SHORT"].map((dir) => (
                   <button
                     key={dir}
                     type="button"
@@ -296,7 +296,7 @@ const TradeForm = () => {
               Select Coin
             </label>
             <div className="flex space-x-4">
-              {["ETH", "BTC"].map(coin => (
+              {["ETH", "BTC"].map((coin) => (
                 <button
                   key={coin}
                   type="button"
@@ -316,7 +316,7 @@ const TradeForm = () => {
               Select Channel
             </label>
             <div className="flex space-x-4">
-              {["Alerts", "Signals", "Test"].map(ch => (
+              {["Alerts", "Signals", "Test"].map((ch) => (
                 <button
                   key={ch}
                   type="button"
