@@ -287,9 +287,6 @@ const TradeForm = () => {
   return (
     <div className="bg-[#36393f] min-h-screen flex justify-center items-center">
       <div className="bg-[#2f3136] p-6 rounded-lg shadow-md w-full max-w-sm border border-[#202225]">
-        {/* <h1 className="text-2xl font-bold text-center text-white mb-6">
-          🚀 Send Trading Signal
-        </h1> */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-[#b9bbbe] font-medium mb-1">
