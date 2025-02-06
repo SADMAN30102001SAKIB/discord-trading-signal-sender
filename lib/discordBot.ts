@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
 
-const BOT_TOKEN =
-  "MTI5ODY0NjAzNzYyMzQ3MjIxMQ.GzH5NJ.LlcTX81prQy3uz5aILsfmx885_n66kWqIJqlAQ";
+const BOT_TOKEN = process.env.BOT_TOKEN;
 
 const DISCORD_WEBHOOKS = {
   alerts: "https://discord.com/api/v10/channels/1301207032690380830/messages",
