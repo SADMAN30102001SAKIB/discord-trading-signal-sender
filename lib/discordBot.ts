@@ -1,6 +1,8 @@
 import fetch from "node-fetch";
+import dotenv from "dotenv";
+dotenv.config();
 
-const BOT_TOKEN = "MTI5ODY0NjAzNzYyMzQ3MjIxMQ.G0grfe.adIxz6IaPlpGkB_Xlgqz9KwKzeoXygOCqFfaa8";
+const BOT_TOKEN = process.env.BOT_TOKEN;
 
 const DISCORD_WEBHOOKS = {
   alerts: "https://discord.com/api/v10/channels/1301207032690380830/messages",
