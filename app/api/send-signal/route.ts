@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     let { channel, entryPrice } = body;
     channel = channel.toLowerCase();
 
-    if (password !== "TapSs@14023010.com") {
+    if (password !== process.env.PASSWORD) {
       return NextResponse.json({ msg: "incorrect password" });
     }
 
